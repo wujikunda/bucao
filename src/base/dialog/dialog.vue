@@ -21,7 +21,7 @@
     left 0
     top 0
     height 100%
-    z-index 999
+    z-index 9999
     display flex
     background-color $color-background-d
     align-items center

@@ -6,11 +6,13 @@ import fastclick from 'fastclick'
 import store from './store'
 import VueLazyload from 'vue-lazyload'
 import axios from 'axios'
-import { setTitle } from 'common/js/dom'
-import Modal from 'iview/src/components/modal'
+import iView from 'iview'
 import 'iview/dist/styles/iview.css'
 import 'common/stylus/index.styl'
-
+import '../static/UE/ueditor.config.js'
+import '../static/UE/ueditor.all.min.js'
+import '../static/UE/lang/zh-cn/zh-cn.js'
+import '../static/UE/ueditor.parse.min.js'
 /* eslint-disable no-unused-vars */
 // import Console from 'vconsole'
 // var vConsole = new Console()
@@ -31,7 +33,6 @@ axios.interceptors.response.use(function(response) { // 配置请求回来的信
   return Promise.reject(error)
 })
 Vue.prototype.$http = axios // 其他页面在使用axios的时候直接  this.$http就可以了
-Vue.prototype.$setTitle = setTitle
 
 // axios.defaults.baseURL='http://localhost:8082/';
 
@@ -42,8 +43,8 @@ Vue.use(VueLazyload, {
   error: require('common/image/default_house.png'),
   attempt: 2
 })
-Vue.component('Modal', Modal)
-// Vue.use(iview)
+// Vue.component('Modal', Modal)
+Vue.use(iView)
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

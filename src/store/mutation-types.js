@@ -1,39 +1,3 @@
 export const SET_USER_TOKEN = 'SET_USER_TOKEN'
 
-export const SET_USER_INFO = 'SET_USER_INFO'
-
-export const SET_HOME_LIST = 'SET_HOME_LIST'
-
-export const SET_HOME_CITY = 'SET_HOME_CITY'
-
-export const SET_SELECT_LIST = 'SET_SELECT_LIST'
-
-export const SET_HOME_DETIAL = 'SET_HOME_DETIAL'
-
-export const SET_AREA_LIST = 'SET_AREA_LIST'
-
 export const SET_USER_ADMIN = 'SET_USER_ADMIN'
-
-export const SET_ADVERTISEMENT = 'SET_ADVERTISEMENT'
-
-export const SET_PLAYING_STATE = 'SET_PLAYING_STATE'
-
-export const SET_FULL_SCREEN = 'SET_FULL_SCREEN'
-
-export const SET_PLAYLIST = 'SET_PLAYLIST'
-
-export const SET_SEQUENCE_LIST = 'SET_SEQUENCE_LIST'
-
-export const SET_PLAY_MODE = 'SET_PLAY_MODE'
-
-export const SET_CURRENT_INDEX = 'SET_CURRENT_INDEX'
-
-export const SET_DISC = 'SET_DISC'
-
-export const SET_TOP_LIST = 'SET_TOP_LIST'
-
-export const SET_SEARCH_HISTORY = 'SET_SEARCH_HISTORY'
-
-export const SET_PLAY_HISTORY = 'SET_PLAY_HISTORY'
-
-export const SET_FAVORITE_LIST = 'SET_FAVORITE_LIST'

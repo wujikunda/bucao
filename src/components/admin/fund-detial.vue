@@ -36,7 +36,7 @@
     },
     data() {
       return {
-        userimg: require('common/image/tab_center_normal.png'),
+        userimg: require('common/image/btn_back.png'),
         password: '',
         userphone: ''
       }

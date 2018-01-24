@@ -21,7 +21,6 @@
 <script type="text/ecmascript-6">
   import AdminHead from 'components/admin/header'
   import MDialog from 'base/dialog/dialog'
-  import {userInfo} from 'api/setting'
   import {mapGetters, mapMutations} from 'vuex'
   export default {
     props: {
@@ -36,20 +35,21 @@
         menuList: [
           {
             menuItem:[
-              {icon:require('common/image/icon_dingdan.png'),text: '会员管理',type:'member'},
-              {icon:require('common/image/icon_shoucang.png'),text: '房源管理',type:'house'},
-              {icon:require('common/image/icon_duibi.png'),text: '预租管理',type:'preLease'},
-              {icon:require('common/image/icon_qianbao.png'),text: '资金管理',type:'fund'},
-              {icon:require('common/image/icon_fankui.png'),text: '广告管理',type:'advertisement'},
-              {icon:require('common/image/icon_lianxi.png'),text: '反馈管理',type:'reply'},
-              {icon:require('common/image/icon_shezhi.png'),text: '押金管理',type:'deposit'}
+              {icon:require('common/image/btn_back.png'),text: '布草管理',type:'bucao/list'},
+              {icon:require('common/image/btn_back.png'),text: 'RFID管理',type:'rfid'},
+              // {icon:require('common/image/btn_back.png'),text: '订单管理',type:'order'},
+              // {icon:require('common/image/btn_back.png'),text: '酒店管理',type:'hotel'},
+              // {icon:require('common/image/btn_back.png'),text: '洗涤厂管理',type:'washing'},
+              // {icon:require('common/image/btn_back.png'),text: '用户管理',type:'member'},
+              // {icon:require('common/image/btn_back.png'),text: '资金管理',type:'fund'},
+              // {icon:require('common/image/btn_back.png'),text: '系统管理',type:'system'}
             ]
           }
         ]
       }
     },
     mounted() {
-      this.checkLogin()
+      // this.checkLogin()
     },
     methods: {
       menuClick( item ) {
@@ -63,10 +63,7 @@
             path:'/admin/login'
           })
         }
-      },
-      ...mapMutations({
-        setUserInfo: 'SET_USER_INFO'
-      })
+      }
     },
     components: {
       AdminHead,

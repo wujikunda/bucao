@@ -14,7 +14,7 @@
     </m-dialog>
     <section class="headCont">
       <div class="logoBox">
-        <img class="logo" src="~common/image/login_admin.png">
+        <img class="logo" src="~common/image/logo_index.png">
       </div>
       <div class="tab" >
         <div v-for="(item,index) in routerObj" :key="index"  class="tab-items">

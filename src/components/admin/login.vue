@@ -1,8 +1,8 @@
 <template>
-  <div id = "adminLogin">
+  <div id="adminLogin">
     <section class="loginCont">
       <div class="leftCont">
-        <h1>云租平台</h1>
+        <h1>布草租赁系统</h1>
         <h3>后台登录系统</h3>
       </div>
       <div class="rightConts">
@@ -12,22 +12,22 @@
             <div class="box">
               <span>用户名</span>
               <div class="inputBox">
-                <input ref="phoneInput" v-model="userphone"  placeholder="输入用户名"/>
+                <input ref="phoneInput" v-model="userphone" placeholder="输入用户名" />
               </div>
             </div>
             <div class="box">
               <span>密码</span>
               <div class="inputBox">
-                <input @keyup.enter="login" ref="passWord" type="password" v-model="password"  placeholder="请输入密码"/>
+                <input @keyup.enter="login" ref="passWord" type="password" v-model="password" placeholder="请输入密码" />
               </div>
             </div>
             <!-- <div class="box">
-              <span>验证码</span>
-              <div class="inputBox">
-                <input ref="verifiction" type="text" v-model="verifiction"  placeholder="请输入验证码"/>
-                <div class="verifiction">发送</div>
-              </div>
-            </div> -->
+                <span>验证码</span>
+                <div class="inputBox">
+                  <input ref="verifiction" type="text" v-model="verifiction"  placeholder="请输入验证码"/>
+                  <div class="verifiction">发送</div>
+                </div>
+              </div> -->
             <!-- <router-link tag="div" class="forgetBtn" to="/register/2">忘记密码</router-link> -->
           </div>
           <div class="buttonC" @click="login">登录</div>
@@ -38,32 +38,40 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import {managerLogin} from 'api/admin'
-  import {getPlatform} from 'common/js/util'
-  import {mapMutations} from 'vuex'
+  import {
+    managerLogin
+  } from 'api/admin'
+  import {
+    getPlatform
+  } from 'common/js/util'
+  import {
+    mapMutations
+  } from 'vuex'
   export default {
-    props: {
-    },
+    props: {},
     data() {
       return {
-        userimg: require('common/image/tab_center_normal.png'),
+        userimg: require('common/image/btn_back.png'),
         password: '',
         userphone: '',
-        verifiction:''
+        verifiction: ''
       }
     },
     methods: {
       login() {
+        this.$router.push({
+          path: '/admin/bucao/list'
+        })
+        return
         managerLogin(this.userphone, this.password, this.verifiction).then((res) => {
-          if(!res.code){
-            this.setUserAdmin(true) 
-            this.userphone = "" 
+          if (!res.code) {
+            this.setUserAdmin(true)
+            this.userphone = ""
             this.password = ""
             this.$router.push({
-              path:'/admin/member'
+              path: '/admin/bucao/list'
             })
-            
-          }else{
+          } else {
             alert(res.msg)
           }
         })
@@ -76,8 +84,7 @@
         setUserAdmin: 'SET_USER_ADMIN'
       })
     },
-    components: {
-    }
+    components: {}
   }
 </script>
 

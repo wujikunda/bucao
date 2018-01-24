@@ -1,5 +1,6 @@
 import originJsonp from 'jsonp'
 import {getPlatform} from 'api/login'
+import { getSign } from 'api/crypto'
 
 const debug = process.env.NODE_ENV !== 'production'
 export default function jsonp(url, data, option) {
@@ -38,13 +39,23 @@ export function jsonpAdmin(url, data, option) {
   if (debug) {
     console.log('send', urlindx, data)
   }
+  let tokenUrl = ' http://112.74.50.149:8080/api/auth/access-token?username=1&password=1'
   return new Promise((resolve, reject) => {
-    originJsonp(url, option, (err, data) => {
+    originJsonp(tokenUrl, (err, res) => {
       if (!err) {
-        if (debug) {
-          console.log('get', urlindx, data)
-        }
-        resolve(data)
+        let token = res.data.token
+        data.token = token
+        url = url + '&token=' + token + '&sign=' + getSign(data)
+        originJsonp(url, option, (err, data) => {
+          if (!err) {
+            if (debug) {
+              console.log('get', urlindx, data)
+            }
+            resolve(data)
+          } else {
+            reject(err)
+          }
+        })
       } else {
         reject(err)
       }
