@@ -2,7 +2,7 @@
   <div class="search-box">
     <div class="box" >
        <i class="icon-search"></i>
-      <input ref="query" v-model="query"  :placeholder="placeholder"/>
+      <input ref="query" v-model="query" @keyup.enter="serachClick" :placeholder="placeholder"/>
     </div>
     <button class="searchBtn"  @click="serachClick">搜索</button>
   </div>
@@ -27,6 +27,7 @@
         this.query = ''
       },
       serachClick() {
+        console.log(this.query)
         this.$emit('serachClick', this.query)
       },
       setQuery(query) {

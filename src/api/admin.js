@@ -154,6 +154,43 @@ export function linenStockQuery(obj = {}) {
   })
   return jsonpAdmin(url, objData, options)
 }
+
+// 套件列表 start limit searchword
+export function packagelinensList(obj = {}) {
+  let url = HTTPIP + '/sig/v1/packagelinens/list'
+  let objData = Object.assign({}, obj, {
+    timestamp: getDate()
+  })
+  return jsonpAdmin(url, objData, options)
+}
+
+// 套件详情 Packagelinensid
+export function packagelinensDetail(obj = {}) {
+  let url = HTTPIP + '/sig/v1/packagelinens/detail'
+  let objData = Object.assign({}, obj, {
+    timestamp: getDate()
+  })
+  return jsonpAdmin(url, objData, options)
+}
+
+// 套件新增 name linedids id
+export function packagelinensUpdate(obj = {}) {
+  let url = HTTPIP + '/sig/v1/packagelinens/update'
+  let objData = Object.assign({}, obj, {
+    timestamp: getDate()
+  })
+  return jsonpAdmin(url, objData, options)
+}
+
+// 套件新增 Packagelinensid
+export function packagelinensDelete(obj = {}) {
+  let url = HTTPIP + '/sig/v1/packagelinens/delete'
+  let objData = Object.assign({}, obj, {
+    timestamp: getDate()
+  })
+  return jsonpAdmin(url, objData, options)
+}
+
 // RFID列表
 export function rfidList(obj = {}) {
   let url = HTTPIP + '/sig/v1/rfid/list'
@@ -203,6 +240,10 @@ const allFun = {
   linenKindQuery,
   linenStockList,
   linenStockQuery,
+  packagelinensList,
+  packagelinensDetail,
+  packagelinensUpdate,
+  packagelinensDelete,
   rfidList,
   rfidQuery,
   rfidDelete,

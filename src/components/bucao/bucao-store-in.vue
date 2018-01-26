@@ -1,207 +1,87 @@
 <template>
-  <section class="listBox">
-    <m-dialog v-show="showDialog">
-      <div class="dialog">
-        <div class="icon">
-          <img src="~common/image/icon_gantanhao.png" alt="删除">
-        </div>
-        <div class="text">确定要删除吗?</div>
-        <div class="btnBox">
-          <span class="confirm" @click="confirm">确认</span>
-          <span class="cancel" @click="cancel">取消</span>
-        </div>
-      </div>
-    </m-dialog>
+  <section class="content">
+    <loading v-show="showloading"></loading>
     <div class="headerBox">
-      <p class="listCount">布草列表 (共{{tabListNumber}}条记录)
-        <b class="refresh color-theme" @click="refresh">刷新</b>
-        <b class="_edit" @click="refresh">添加</b>
-      </p>
-      <select>
-        <option value="-1">种类</option>
-        <option value="0">0</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-      </select>
-      <input-box @serachClick="_serachByPhone" class="inputBox" placeholder='搜索...'></input-box>
+      <img style="width:35px;cursor:pointer" src="~common/image/btn_back.png" alt="返回" @click="_back">
+      <p>布草出入库管理</p>
+      <span>{{pageType}}</span>
     </div>
-    <table-list 
-      :tabData="tabData" 
-      :tabTitle="tabTitle" 
-      :tabControls="tabControls" 
-      :showTabControls="true"
-      @control="controls"
-      @toPage = "toPage"
-      :total="tabListNumber">
-    </table-list>
+    <div class="formBox">
+      <div class="inputBox">
+        <div class="title">名称 <span>*</span></div> 
+        <Input v-model="uploadObj.linenid" placeholder="请输入名称" class="inputLike" :size = "'large'" ></Input>
+      </div>
+      <div class="inputBox">
+        <div class="title">数量 <span>*</span></div> 
+        <Input v-model="uploadObj.num" placeholder="请输入名称" class="inputLike" :size = "'large'" ></Input>
+      </div>
+      <div class="inputBox" v-show="this.uploadObj.handletype === '1'">
+        <div class="title">接收方 <span></span></div> 
+        <Input v-model="uploadObj.washplantid" placeholder="请输入名称" class="inputLike" :size = "'large'" ></Input>
+      </div>
+    </div>
+    <div class="buttonC" @click="submitClick">确认提交</div>
   </section>
 </template>
 
 <script type="text/ecmascript-6">
-import TableList from 'base/table-list/table-list'
-import InputBox from 'components/admin/input-box'
-import MDialog from 'base/dialog/dialog'
 import apiReq from 'api/admin'
-
+import loading from 'base/loading/loading'
+import uploader from 'base/uploader/uploader'
+import {mapGetters, mapMutations} from 'vuex'
+import iMlrz from 'lrz'
   export default {
     props: {
     },
     computed: {
-   
     },
     data() {
       return {
-        showDialog:false,
-        tabListNumber:0,
-        tabData:[],
-        tabTitle:[],
-        tabControls:[],
-        page:1,
-        deleteID:-1,
-        controlsType:"",
+        pageType:'',
+        uploadObj:{},
+        showloading:false,
       }
     },
     mounted() {
-      this.tabTitle = ['ID', '名称', '种类', '规格', 'logo', '库存']
-      this.tabControls = [{
-        text:'删除',
-        icon: require('common/image/btn_trash.png'),
-        funname:'delete',
-        color :'#ef5b5c'
-      },{
-        text:'详情',
-        icon: require('common/image/btn_xiangqing.png'),
-        funname:'edit',
-        color :'#5cb5f2'
-      },
-      ,{
-        text:'编辑',
-        icon: require('common/image/btn_xiangqing.png'),
-        funname:'edit',
-        color :'#5cb5f2'
-      },
-      ,{
-        text:'入库',
-        icon: require('common/image/btn_xiangqing.png'),
-        funname:'edit',
-        color :'#5cb5f2'
-      },
-      ,{
-        text:'出库',
-        icon: require('common/image/btn_xiangqing.png'),
-        funname:'edit',
-        color :'#5cb5f2'
-      }]
-      this._getDataList(1)
+      if(this.$route.path.indexOf('instock') < 0){
+        this.pageType = '布草出库'
+        this.uploadObj.handletype = '1'
+      }else{
+        this.pageType = '布草入库'
+        this.uploadObj.handletype = '2'
+      }
+      this._getDetial(this.$route.params.id)
+
     },
     methods: {
-      refresh() {
-        this._getDataList( this.page )
+      _back() {
+        this.$router.back()
       },
-      _edit() {
-        this.$router.push(`/admin/bucao/edit/${index}`)
+      submitClick() {
+        this._upload()
       },
-      _serachByPhone(query) {
-        if(!query) {
-          this.refresh()
-          return
-        }
+      _getDetial(linenid) {
+        this.uploadObj.linenid = linenid
+        this.uploadObj.kindname = sessionStorage.getItem('__kindname__')
       },
-      cancel() {
-        this.showDialog = false
-      },
-      confirm() {
-        if(this.controlsType === 'delete') {
-          return
-          managerBeforeDel(this.deleteID).then((res) => {
-            if(!res.code){
-              this.refresh()
-              alert('删除成功')
-              this.showDialog = false
-            }else{
-              alert(res.msg)
-            }
-          })
-        }
-      },
-      _toDetial(index) {
-        this.$router.push(`/admin/bucao/edit/${index}`)
-      },
-      toPage(index) {
-        this.page = index
-        this._getDataList( this.page )
-      },
-      controls(type, item, index) {
-        if(type==='delete') {
-          this.deleteID = item[0].text
-          this.controlsType = type
-          this.showDialog = true
-        }else {
-          this._toDetial(item[0].text)
-        }
-        
-      },
-      _getDataList( page ) {
+      _upload() {
+        let _this = this
         return
-        managerBeforeList(page, 10).then((res) => {
+        apiReq.linenKindUpdate(_this.uploadObj).then((res) => {
           if(!res.code){
-            this._formTabList(res.data.list)
-            this.tabListNumber = parseInt(res.data.beforenum)
+            alert('提交成功')
+            this.$router.back()
           }else{
             alert(res.msg)
           }
         })
-      },
-      _formTabList(list) {
-        let newList = [];
-        list.forEach((element, index) => {
-          newList.push(
-            [
-              {
-                type:'text',
-                id:'beforeid',
-                text:element.beforeid
-              },
-              {
-                type:'text',
-                id:'nickname',
-                text:element.name
-              },
-              {
-                type:'text',
-                id:'phone',
-                text:element.phone
-              },
-              {
-                type:'text',
-                id:'business',
-                text:element.business
-              },
-              {
-                type:'text',
-                id:'areaname',
-                text:element.areaname
-              },
-              {
-                type:'text',
-                id:'pricename',
-                text:element.pricename
-              },
-              {
-                type:'text',
-                id:'address',
-                text:element.address
-              }
-            ]
-          )
-        });
-        this.tabData = newList
       }
     },
+    watch: {
+    },
     components: {
-      TableList,
-      InputBox,
-      MDialog
+      uploader,
+      loading
     }
   }
 </script>
@@ -209,44 +89,71 @@ import apiReq from 'api/admin'
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/variable"
   @import "~common/stylus/mixin"
-  .listBox
+  .content
     width 100%
-    .dialog
-      background-color #fff
-      border-radius 10px
-      width 350px
-      height 200px
-      line-height 30px
-      display flex
-      flex-direction column
-      align-items center
-      box-sizing border-box
-      padding 20px 0
-      .icon
-        margin-top 10px
-        img
-          width 50px
     .headerBox
-      padding 20px
       display flex
-      line-height 50px
-      justify-content space-between
-      .refresh
-        cursor pointer
-        margin-left 20px
-        &:hover
-          text-decoration underline
-      select
-        line-height 50px
-        min-width 100px
-        text-align left
-        padding 0 5px
-        box-sizing content-box
-        height 35px
-        border-radius 5px
-        border 1px solid $color-border
-        background: $color-white
-        color: $color-text
-      .inputBox
-        width 300px
+      align-items center
+      margin 20px 0
+      p
+        margin 0 20px
+      span
+        color #909090
+    .formBox
+      margin-left 50px
+    .inputBox 
+      color #909090
+      padding 10px 0
+      position relative
+      display flex
+      line-height 35px
+      width 100%
+      .title
+        width 100px
+      .picList
+        padding 10px 0
+        .listBox
+          .addButton
+            display inline-block
+            img
+              width 80px
+              height 80px
+              border-radius 3px
+              border 1px solid $color-theme
+          .uploadImgBox
+            position relative
+            display inline-block
+            padding 10px 10px 10px 0
+            .uploadItem
+              width 80px
+              height 80px
+              border-radius 3px
+              border 1px solid $color-theme
+            .deletBtn
+              position absolute
+              top 2px
+              right 2px
+              width 16px
+              height 16px
+      span 
+        display inline-block
+        color $color-theme
+        font-weight bold
+        margin-right 20px
+      .icon
+        width 15px
+        height 15px
+      .inputLike
+        height 40px
+        width 400px
+  .buttonC
+    color $color-white
+    background-color $color-theme
+    buttonD()
+    width 200px
+    cursor pointer
+    height 50px
+    left 50px
+    line-height 50px
+    margin 30px 0
 </style>

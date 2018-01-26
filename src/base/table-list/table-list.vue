@@ -8,7 +8,7 @@
       <li :key="i" class="tab-item" @click="selectItem(item)" v-for="(item, i) in tabData">
         <div class="cel" :class="{'mincel': index===0 }" :key="index" v-for="(ele, index) in item">
           <span v-if="ele.type === 'text'"  :style="ele.color ? 'color:'+ele.color : '' ">{{ele.text || '--'}}</span>
-          <span v-else><img class="cel-icon" :src="ele.text" alt="--"></span>
+          <span v-else><img class="cel-icon" :src="ele.text" ></span>
         </div>
         <div class="cel controlsBox" v-if="showTabControls" :style="`flex: 0 0 ${100*tabControls.length}px`">
           <div @click.stop="control(ele, item, i)" class="cel btnBox" v-for="(ele,index) in tabControls" :key="index" v-show="stateNeedShow(item,index)">

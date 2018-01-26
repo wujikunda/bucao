@@ -7,14 +7,26 @@
       <span>{{pageType}}</span>
     </div>
     <div class="formBox">
-      <div class="inputBox"><div class="title">名称 <span>*</span></div> <input type="text" v-model="uploadObj.name" placeholder="请输入名称"></div>
-      <div class="inputBox"><div class="title">种类 <span>*</span></div> <input type="text" v-model="uploadObj.kindid" placeholder="请输入种类"></div>
-      <div class="inputBox"><div class="title">规格 <span>*</span></div><input type="text" v-model="uploadObj.specification" placeholder=""></div>
-      <div class="inputBox"><div class="title">布草单价 <span></span></div> <input type="text" v-model="uploadObj.price" placeholder="请输入种类"></div>
-      <div class="inputBox"><div class="title">租赁单价 <span>*</span></div><input type="text" v-model="uploadObj.rentprice" placeholder="请输入租赁单价"></div>
-      <div class="inputBox"><div class="title">洗涤单价 <span>*</span></div><input type="text" v-model="uploadObj.washprice" placeholder="请输入洗涤单价"></div>
-      <div class="inputBox"><div class="title">库存 <span></span></div><input type="text" v-model="uploadObj.stock" placeholder="请输入数量"></div>
-      <div class="inputBox"><div class="title">总量 <span></span></div><input type="text" v-model="uploadObj.totalnum" placeholder="请输入数量"></div>
+      <div class="inputBox"><div class="title">名称 <span>*</span></div> <Input class="inputLike" size="large"  type="text" v-model="uploadObj.name" placeholder="请输入名称"></Input></div>
+      <div class="inputBox">
+        <div class="title">
+          种类名称 <span>*</span>
+        </div>
+        <AutoComplete
+          class="inputLike"
+          :size = "'large'"
+          v-model="uploadObj.kindname"
+          :data = "kindList"
+          @on-search="_serachList"
+          placeholder="请输入种类名称"
+          ></AutoComplete>
+      </div>
+      <div class="inputBox"><div class="title">规格 <span>*</span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.specification" placeholder="请输入规格(mm)"></Input></div>
+      <div class="inputBox"><div class="title">布草单价 <span></span></div> <Input class="inputLike" size="large" type="text" v-model="uploadObj.price" placeholder="请输入种类"></Input></div>
+      <div class="inputBox"><div class="title">租赁单价 <span>*</span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.rentprice" placeholder="请输入租赁单价"></Input></div>
+      <div class="inputBox"><div class="title">洗涤单价 <span>*</span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.washprice" placeholder="请输入洗涤单价"></Input></div>
+      <div class="inputBox"><div class="title">库存 <span></span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.stock" placeholder="请输入数量"></Input></div>
+      <div class="inputBox"><div class="title">总量 <span></span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.totalnum" placeholder="请输入数量"></Input></div>
       <div class="inputBox">
         <p class="title">logo<span>*</span></p>
         <div class="img">
@@ -35,9 +47,9 @@
           <uploader ref="uploadFiles"  @selectFinish="selectDone" v-show="false" :hideImg="true"></uploader>
         </div>
       </div>
-      <div class="inputBox"><div class="title">押金 <span>*</span></div><input type="text" v-model="uploadObj.cash" placeholder="请输入押金"></div>
-      <div class="inputBox"><div class="title">床体 <span>*</span></div><input type="text" v-model="uploadObj.body" placeholder="请输入质量标准"></div>
-      <div class="inputBox"><div class="title">质量标准 <span>*</span></div><input type="text" v-model="uploadObj.qualitystandard" placeholder="请输入质量标准"></div>
+      <div class="inputBox"><div class="title">押金 <span>*</span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.cash" placeholder="请输入押金"></Input></div>
+      <div class="inputBox"><div class="title">床体 <span>*</span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.body" placeholder="请输入质量标准"></Input></div>
+      <div class="inputBox"><div class="title">质量标准 <span>*</span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.qualitystandard" placeholder="请输入质量标准"></Input></div>
       <div class="inputBox"></span></div>
         <input type="hidden" v-model="uploadObj.detail" placeholder="详情">
         <ueditor :defaultMsg=defaultMsg :config=config :id=ue1 ref="ue1"></ueditor>
@@ -70,13 +82,13 @@ import iMlrz from 'lrz'
       return {
         pageType:'',
         uploadObj:{
-          kindid:1
         },
         showloading:false,
         file:null,
         imgFile:null,
         uploadImgs: [],
         kindList:[],
+        kindObject: {},
         defaultMsg: '请输入详细说明',
         config: {
           initialFrameWidth: null,
@@ -87,7 +99,6 @@ import iMlrz from 'lrz'
     },
     mounted() {
       if(this.$route.params.id !== 'add') {
-        console.log()
         if(this.$route.path.indexOf('detial') < 0){
           this.pageType = '编辑页面'
         }else{
@@ -96,7 +107,7 @@ import iMlrz from 'lrz'
         this._getDetial(this.$route.params.id)
       }else{
         this.pageType = '添加页面'
-        
+        this._serachList('')
       }
       document.title = this.pageType
 
@@ -115,30 +126,55 @@ import iMlrz from 'lrz'
         this.uploadImgs.splice(index,1)
       },
       submitClick() {
-        if(!this.file){
+        if(!this.uploadObj.kindname){
+          alert('输入种类名称')
+          return
+        }
+        if(!this.file && !this.uploadObj.logo){
           alert('请选择logo图片')
           return
         }
+        this.uploadObj.kindid = this.kindObject[this.uploadObj.kindname]
+        console.log(this.kindObject[this.uploadObj.kindname],this.uploadObj.kindname,this.uploadObj.kindid)
         this.showloading =true
         this._uploadImg(this.file)
       },
-      _getDetial(linenid) {
-        apiReq.linenDetail({linenid: linenid}).then((res) => {
+      _serachList(val) {
+        if( val === undefined){
+          return
+        }
+        apiReq.linenKindQuery({searchword: val}).then((res) => {
           if(!res.code){
-            this.uploadObj = res.data
+            let arr = []
+            let obj = {}
+            res.data.list.forEach(element => {
+              arr.push(element.kindname)
+              obj[element.kindname] = element.id
+              
+            });
+            if(arr.length){
+              this.$set(this, 'kindList', arr)
+              this.$set(this, 'kindObject', obj)
+            }
           }else{
             alert(res.msg)
           }
         })
       },
-      _getTypeList() {
-        let data = {
-          start: 1,
-          limit: 100
-        }
-        apiReq.linenKindList(data).then((res) => {
+      _getDetial(linenid) {
+        apiReq.linenDetail({linenid: linenid}).then((res) => {
           if(!res.code){
-            this.$set(this, 'kindList', res.data.list)
+            let keys = Object.keys(res.data)
+            keys.forEach(element => {
+              if(res.data[element] 
+                && element !== 'updateDate'
+                && element !== 'createDate'
+              ){
+                this.uploadObj[element] = res.data[element]
+              }
+            })
+            console.log(this.uploadObj)
+            this.imgFile = res.data.logo
           }else{
             alert(res.msg)
           }
@@ -149,7 +185,7 @@ import iMlrz from 'lrz'
         uploadImg('',imgObj).then((res) => {
           if(!res.code){
             _this.showloading =false
-            _this.uploadObj.logo = res.data
+            _this.uploadObj.logo = res
             _this._upload()
           }else{
             alert(res.msg)
@@ -272,6 +308,9 @@ import iMlrz from 'lrz'
       .icon
         width 15px
         height 15px
+      .inputLike
+        height 40px
+        width 400px
       input
         width 400px
         line-height 35px
@@ -288,6 +327,7 @@ import iMlrz from 'lrz'
     background-color $color-theme
     buttonD()
     width 200px
+    cursor pointer
     height 50px
     left 50px
     line-height 50px

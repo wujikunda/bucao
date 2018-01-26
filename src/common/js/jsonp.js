@@ -63,6 +63,20 @@ export function jsonpAdmin(url, data, option) {
   })
 }
 
+export function getQuestToken() {
+  let tokenUrl = ' http://112.74.50.149:8080/api/auth/access-token?username=1&password=1'
+  return new Promise((resolve, reject) => {
+    originJsonp(tokenUrl, (err, res) => {
+      if (!err) {
+        let token = res.data.token
+        resolve(token)
+      } else {
+        reject(err)
+      }
+    })
+  })
+}
+
 export function param(data) {
   let url = ''
   for (var k in data) {

@@ -11,6 +11,6 @@ export const options = {
 }
 export const ERR_OK = 0
 
-export const TEST = false
+export const TEST = process.env.NODE_ENV !== 'production'
 
 export const HTTPIP = 'http://xmjuran.com/api'

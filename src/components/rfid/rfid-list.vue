@@ -36,23 +36,11 @@ import TableList from 'base/table-list/table-list'
 import InputBox from 'components/admin/input-box'
 import MDialog from 'base/dialog/dialog'
 import apiReq from 'api/admin'
-
+import {tablistMixin} from 'common/js/mixin'
   export default {
-    props: {
-    },
-    computed: {
-   
-    },
+    mixins:[tablistMixin],
     data() {
       return {
-        showDialog:false,
-        tabListNumber:0,
-        tabData:[],
-        tabTitle:[],
-        tabControls:[],
-        page:1,
-        deleteID:-1,
-        controlsType:"",
         kindType:'0',
         kindList:[]
       }
@@ -74,35 +62,19 @@ import apiReq from 'api/admin'
       this._getDataList(1)
     },
     methods: {
-      refresh() {
-        this._getDataList( this.page )
-      },
       _edit(index) {
         index ? this.$router.push(`/admin/rfid/edit/${index}`) : this.$router.push(`/admin/rfid/edit/add`)
       },
-      _serachByWord(query) {
-        if(!query) {
-          this.refresh()
-          return
+      _serachList() {
+        let obj = {}
+        if(this.serchQuery){
+          obj.searchword = this.serchQuery
         }
-        this._serachList({searchword: query})
-      },
-      _serachList(obj) {
-        apiReq.rfidQuery(obj).then((res) => {
-          if(!res.code){
-            this._formTabList(res.data.list)
-            this.tabListNumber = parseInt(res.data.listnum)
-          }else{
-            alert(res.msg)
-          }
-        })
-      },
-      cancel() {
-        this.showDialog = false
+        this._getDataList(this.page)
       },
       confirm() {
         if(this.controlsType === 'delete') {
-          apiReq.rfidDelete({linenid: this.deleteID}).then((res) => {
+          apiReq.rfidDelete({RFIDid: this.deleteID}).then((res) => {
             if(!res.code){
               this.refresh()
               alert('删除成功')
@@ -116,10 +88,6 @@ import apiReq from 'api/admin'
       _toDetial(index) {
         this.$router.push(`/admin/rfid/edit/${index}`)
       },
-      toPage(index) {
-        this.page = index
-        this._getDataList( this.page )
-      },
       controls(type, item, index) {
         if(type==='delete') {
           this.deleteID = item[0].text
@@ -128,6 +96,8 @@ import apiReq from 'api/admin'
         }else if(type==='edit') {
           this.deleteID = item[0].text
           this.controlsType = type
+          sessionStorage.setItem('__rfidname__', item[1].text)
+          sessionStorage.setItem('__linenname__', item[2].text)
           this._toDetial(this.deleteID)
         }
       },
@@ -135,6 +105,9 @@ import apiReq from 'api/admin'
         let data = {
           start: page,
           limit: 10
+        }
+        if(this.serchQuery) {
+          data.searchword = this.serchQuery
         }
         apiReq.rfidList(data).then((res) => {
           if(!res.code){
@@ -147,6 +120,7 @@ import apiReq from 'api/admin'
       },
       _formTabList(list) {
         let newList = [];
+        let _this = this
         // ['ID', '名称', '种类', '规格', 'logo', '库存']
         list.forEach((element, index) => {
           newList.push(
@@ -169,12 +143,12 @@ import apiReq from 'api/admin'
               {
                 type:'text',
                 id:'createDate',
-                text:element.createDate
+                text: element.createDate ? _this._formatD('yyyy.MM.dd hh:mm', new Date(element.createdate)) : '--'
               },
               {
                 type:'text',
                 id:'updateDate',
-                text:element.updateDate
+                text: element.updateDate ? _this._formatD('yyyy.MM.dd hh:mm', new Date(element.updateDate)) : '--'
               }
             ]
           )

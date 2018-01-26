@@ -13,20 +13,17 @@
       </div>
     </m-dialog>
     <div class="headerBox">
-      <p class="listCount">布草库存列表 (共{{tabListNumber}}条记录)
-        <b class="refresh color-theme" @click="refresh">刷新</b>
+      <p class="listCount">套件列表 (共{{tabListNumber}}条记录)
+        <b class="refresh color-theme" @click="refresh" style="cursor:pointer">刷新</b>
+        <b class="_edit" @click="_edit()" style="cursor:pointer">添加</b>
       </p>
-      <select v-model="kindType" @change="_serachList">
-        <option value='0'>全部种类</option>
-        <option :value="item.id" v-html="item.kindname" v-for="item in kindList"></option>
-      </select>
       <input-box @serachClick="_serachByWord" class="inputBox" placeholder='搜索...'></input-box>
     </div>
     <table-list 
       :tabData="tabData" 
       :tabTitle="tabTitle" 
       :tabControls="tabControls" 
-      :showTabControls="false"
+      :showTabControls="true"
       @control="controls"
       @toPage = "toPage"
       :total="tabListNumber">
@@ -42,40 +39,39 @@ import apiReq from 'api/admin'
 import {tablistMixin} from 'common/js/mixin'
 
   export default {
-    mixins: [tablistMixin],
+    mixins: [
+      tablistMixin
+    ],
     data() {
       return {
-        kindType:'0',
-        kindList:[]
+        kindList:[],
+        kindType: '0'
       }
     },
     mounted() {
-      this.tabTitle = ['ID', '名称', '种类', '库存类型', '数量', '时间', '操作人']
-      this.tabControls = []
+      this.tabTitle = ['RFID', 'RFID标识', '布草名称', '创建时间', '更新时间']
+      this.tabControls = [{
+        text:'删除',
+        icon: require('common/image/btn_trash.png'),
+        funname:'delete',
+        color :'#ef5b5c'
+      },
+      {
+        text:'编辑',
+        icon: require('common/image/btn_bianji_blue.png'),
+        funname:'edit',
+        color :'#5cb5f2'
+      }]
       this._getDataList(1)
       this._getTypeList()
     },
     methods: {
-      _serachList() {
-        let obj = {}
-        if(this.serchQuery){
-          obj.searchword = this.serchQuery
-        }
-        if(this.kindType !== '0'){
-          obj.kindid = this.kindType
-        }
-        apiReq.linenStockQuery(obj).then((res) => {
-          if(!res.code){
-            this._formTabList(res.data.list)
-            this.tabListNumber = parseInt(res.data.listnum)
-          }else{
-            alert(res.msg)
-          }
-        })
+      _edit(index) {
+        index ? this.$router.push(`/admin/bucao/suite/edit/${index}`) : this.$router.push(`/admin/bucao/suite/edit/add`)
       },
       confirm() {
         if(this.controlsType === 'delete') {
-          apiReq.linenDelete({linenid: this.deleteID}).then((res) => {
+          apiReq.packagelinensDelete({linenid: this.deleteID}).then((res) => {
             if(!res.code){
               this.refresh()
               alert('删除成功')
@@ -86,12 +82,37 @@ import {tablistMixin} from 'common/js/mixin'
           })
         }
       },
+      _serachList() {
+        let obj = {}
+        if(this.serchQuery){
+          obj.searchword = this.serchQuery
+        }
+        this._getDataList(this.page)
+      },
+      _toDetial(index, type) {
+        this.$router.push(`/admin/bucao/suite/${type}/${index}`)
+      },
+      controls(type, item, index) {
+        if(type==='delete') {
+          this.deleteID = item[0].text
+          this.controlsType = type
+          this.showDialog = true
+        }else{
+          this.deleteID = item[0].text
+          this.controlsType = type
+          this._toDetial(this.deleteID,this.controlsType)
+        }
+        
+      },
       _getDataList( page ) {
         let data = {
           start: page,
           limit: 10
         }
-        apiReq.linenStockList(data).then((res) => {
+        if(this.serchQuery) {
+          data.searchword = this.serchQuery
+        }
+        apiReq.packagelinensList(data).then((res) => {
           if(!res.code){
             this._formTabList(res.data.list)
             this.tabListNumber = parseInt(res.data.listnum)
@@ -99,11 +120,6 @@ import {tablistMixin} from 'common/js/mixin'
             alert(res.msg)
           }
         })
-      },
-      _toDetial(index) {
-        this.$router.push(`/admin/bucao/edit/${index}`)
-      },
-      controls(type, item, index) {
       },
       _formTabList(list) {
         let newList = [];
@@ -113,10 +129,9 @@ import {tablistMixin} from 'common/js/mixin'
             [
               {
                 type:'text',
-                id:'id',
-                text:element.id
+                id:'packagelinensid',
+                text:element.packagelinensid
               },
-              
               {
                 type:'text',
                 id:'name',
@@ -124,30 +139,18 @@ import {tablistMixin} from 'common/js/mixin'
               },
               {
                 type:'text',
-                id:'kindname',
-                text:element.kindname
+                id:'linedids',
+                text:element.linedids
               },
               {
                 type:'text',
-                id:'stocktype',
-                text:element.stocktype === 1 ? "出库" : "入库",
-                realVal:element.stocktype
+                id:'createDate',
+                text: element.createDate ? _this._formatD('yyyy.MM.dd hh:mm', new Date(element.createdate)) : '--'
               },
               {
                 type:'text',
-                id:'num',
-                text:element.num
-              },
-              {
-                type:'text',
-                id:'linenid',
-                text:element.linenid
-              },
-              {
-                type:'text',
-                id:'username',
-                text:element.username,
-                realVal:element.userid
+                id:'updateDate',
+                text: element.updateDate ? _this._formatD('yyyy.MM.dd hh:mm', new Date(element.updateDate)) : '--'
               }
             ]
           )

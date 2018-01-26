@@ -7,7 +7,10 @@
       <span>{{pageType}}</span>
     </div>
     <div class="formBox">
-      <div class="inputBox"><div class="title">名称 <span>*</span></div> <input type="text" v-model="uploadObj.kindname" placeholder="请输入名称"></div>
+      <div class="inputBox">
+        <div class="title">名称 <span>*</span></div> 
+        <Input v-model="uploadObj.kindname" placeholder="请输入名称" class="inputLike" :size = "'large'" ></Input>
+      </div>
     </div>
     <div class="buttonC" @click="submitClick">确认提交</div>
   </section>
@@ -133,24 +136,17 @@ import iMlrz from 'lrz'
       .icon
         width 15px
         height 15px
-      input
+      .inputLike
+        height 40px
         width 400px
-        line-height 35px
-        text-indent 10px
-        border 1px solid $color-text-d
-        background: $color-white
-        border-radius 5px
-        color: $color-text
-        font-size: $font-size-medium-x
-        &::placeholder
-          color: $color-text-d
   .buttonC
     color $color-white
     background-color $color-theme
     buttonD()
     width 200px
+    cursor pointer
     height 50px
-    left 140px
+    left 50px
     line-height 50px
-    margin 0
+    margin 30px 0
 </style>

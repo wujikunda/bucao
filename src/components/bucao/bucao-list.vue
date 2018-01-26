@@ -14,8 +14,8 @@
     </m-dialog>
     <div class="headerBox">
       <p class="listCount">布草列表 (共{{tabListNumber}}条记录)
-        <b class="refresh color-theme" @click="refresh">刷新</b>
-        <b class="_edit" @click="_edit()">添加</b>
+        <b class="refresh color-theme" @click="refresh" style="cursor:pointer">刷新</b>
+        <b class="_edit" @click="_edit()" style="cursor:pointer">添加</b>
       </p>
       <select v-model="kindType" @change="_serachList">
         <option value='0'>全部种类</option>
@@ -40,26 +40,16 @@ import TableList from 'base/table-list/table-list'
 import InputBox from 'components/admin/input-box'
 import MDialog from 'base/dialog/dialog'
 import apiReq from 'api/admin'
+import {tablistMixin} from 'common/js/mixin'
 
   export default {
-    props: {
-    },
-    computed: {
-   
-    },
+    mixins: [
+      tablistMixin
+    ],
     data() {
       return {
-        showDialog:false,
-        tabListNumber:0,
-        tabData:[],
-        tabTitle:[],
-        tabControls:[],
-        page:1,
-        deleteID:-1,
-        controlsType:"",
-        kindType:'0',
-        serchQuery:'',
-        kindList:[]
+        kindList:[],
+        kindType: '0'
       }
     },
     mounted() {
@@ -98,15 +88,8 @@ import apiReq from 'api/admin'
       this._getTypeList()
     },
     methods: {
-      refresh() {
-        this._getDataList( this.page )
-      },
       _edit(index) {
         index ? this.$router.push(`/admin/bucao/edit/${index}`) : this.$router.push(`/admin/bucao/edit/add`)
-      },
-      _serachByWord(query) {
-        this.serchQuery = query
-        this._serachList()
       },
       _serachList() {
         let obj = {}
@@ -125,9 +108,6 @@ import apiReq from 'api/admin'
           }
         })
       },
-      cancel() {
-        this.showDialog = false
-      },
       confirm() {
         if(this.controlsType === 'delete') {
           apiReq.linenDelete({linenid: this.deleteID}).then((res) => {
@@ -144,33 +124,15 @@ import apiReq from 'api/admin'
       _toDetial(index, type) {
         this.$router.push(`/admin/bucao/${type}/${index}`)
       },
-      toPage(index) {
-        this.page = index
-        this._getDataList( this.page )
-      },
       controls(type, item, index) {
         if(type==='delete') {
           this.deleteID = item[0].text
           this.controlsType = type
           this.showDialog = true
-        }else if(type==='detial') {
-          this.deleteID = item[0].text
-          this.controlsType = type
-          this._toDetial(this.deleteID,this.controlsType)
-        }else if(type==='edit') {
-          this.deleteID = item[0].text
-          this.controlsType = type
-          this._toDetial(this.deleteID,this.controlsType)
-        }else if(type==='instock') {
-          this.deleteID = item[0].text
-          this.controlsType = type
-          console.log(this.deleteID, this.controlsType)
-        }else if(type==='outstock') {
-          this.deleteID = item[0].text
-          this.controlsType = type
-          console.log(this.deleteID, this.controlsType)
         }else{
-          this._toDetial(item[0].text)
+          this.deleteID = item[0].text
+          this.controlsType = type
+          this._toDetial(this.deleteID,this.controlsType)
         }
         
       },

@@ -32,6 +32,16 @@ const BucaoStore = (resolve) => {
     resolve(module)
   })
 }
+const BucaoSuite = (resolve) => {
+  import('components/bucao/bucao-suite').then((module) => {
+    resolve(module)
+  })
+}
+const BucaoSuiteEdit = (resolve) => {
+  import('components/bucao/bucao-suite-edit').then((module) => {
+    resolve(module)
+  })
+}
 const BucaoStoreIn = (resolve) => {
   import('components/bucao/bucao-store-in').then((module) => {
     resolve(module)
@@ -163,6 +173,16 @@ const adminRouter = [
           meta: {title: '布草库存日志'}
         },
         {
+          path: 'suite',
+          component: BucaoSuite,
+          meta: {title: '布草套件'}
+        },
+        {
+          path: 'suite/edit/:id',
+          component: BucaoSuiteEdit,
+          meta: {title: '布草套件'}
+        },
+        {
           path: 'edit/:id',
           component: BucaoEdit,
           meta: {title: '布草编辑'}
@@ -173,14 +193,19 @@ const adminRouter = [
           meta: {title: '布草详情'}
         },
         {
+          path: 'instock/:id',
+          component: BucaoStoreIn,
+          meta: {title: '布草入库'}
+        },
+        {
+          path: 'outstock/:id',
+          component: BucaoStoreIn,
+          meta: {title: '布草出库'}
+        },
+        {
           path: 'type/edit/:id',
           component: BucaoTypeEdit,
           meta: {title: '布草种类新增'}
-        },
-        {
-          path: 'store/edit/:id',
-          component: BucaoStoreIn,
-          meta: {title: '出入库'}
         }
       ]
     },

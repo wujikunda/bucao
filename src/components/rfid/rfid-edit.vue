@@ -7,19 +7,23 @@
       <span>{{pageType}}</span>
     </div>
     <div class="formBox">
-      <div class="inputBox"><div class="title">RIIF标识 <span>*</span></div> <input type="text" v-model="uploadObj.name" placeholder="请输入名称"></div>
+      <div class="inputBox">
+        <div class="title">RIIF标识 <span>*</span></div>
+         <Input v-model="uploadObj.rfidname" placeholder="请输入名称" class="inputLike" :size = "'large'" ></Input>
+        </div>
       <div class="inputBox">
         <div class="title">
           布草名称 <span>*</span>
         </div>
         <AutoComplete
           class="inputLike"
+          :size = "'large'"
           v-model="uploadObj.linenname"
           :data = "kindList"
           @on-search="_serachList"
           placeholder="请输入布草名称"
           ></AutoComplete>
-        </div>
+      </div>
     </div>
     <div class="buttonC" @click="submitClick">确认提交</div>
   </section>
@@ -51,13 +55,14 @@ import iMlrz from 'lrz'
         files:null,
         imgFiles:null,
         uploadImgs: [],
-        kindList:[]
+        kindList:[],
+        kindObject:{}
       }
     },
     mounted() {
       if(this.$route.params.id !== 'add') {
         this.pageType = '编辑页面'
-        // this._getDetial(this.$route.params.id)
+        this._getDetial(this.$route.params.id)
       }else{
         this.pageType = '添加页面'
         
@@ -69,94 +74,60 @@ import iMlrz from 'lrz'
       _back() {
         this.$router.back()
       },
-      selectImg() {
-        this.$refs.uploadFiles.$refs.file.click()
-      },
-      deleteUploadImg(index) {
-        this.uploadImgs.splice(index,1)
-      },
       submitClick() {
-        this._upload()
-        return 
-        if(!this.file){
-          alert('请选择广告图片')
+        if(!this.uploadObj.linenname){
+          alert('请输入布草名称')
           return
         }
-        this.showloading =true
-        this._uploadImg(this.file)
+        this._upload()
       },
       _serachList(val) {
-        apiReq.linenKindQuery({searchword: val}).then((res) => {
+        apiReq.linenQuery({searchword: val}).then((res) => {
           if(!res.code){
             let arr = []
+            let obj = {}
             res.data.list.forEach(element => {
-              arr.push(element.kindname)
+              arr.push(element.name)
+              obj[element.name] = element.linenid
             });
             if(arr.length){
               this.$set(this, 'kindList', arr)
-              // console.log(this.$refs.autoComplete.data)
-              // this.$refs.autoComplete.data.push(arr)
+              this.$set(this, 'kindObject', obj)
             }
           }else{
             alert(res.msg)
           }
         })
       },
-      _getDetial(linenid) {
-        apiReq.rfidUpdate({linenid: linenid}).then((res) => {
-          if(!res.code){
-            this.uploadObj = res.data
-          }else{
-            alert(res.msg)
-          }
-        })
-      },
-      _uploadImg(imgObj) {
-        let _this = this
-        uploadImg('',imgObj).then((res) => {
-          if(!res.code){
-            _this.showloading =false
-            _this.uploadObj.picurl = res.data.headimg
-            _this._upload()
-          }else{
-            alert(res.msg)
-            _this.showloading =false
-          }
-        })
+      _getDetial(rfidid) {
+        this.uploadObj.id = rfidid
+        if(!sessionStorage.getItem('__rfidname__')){
+          this.$router.replace({
+            path: '/admin/rfid'
+          })
+          return
+        }
+        this.uploadObj.rfidname = sessionStorage.getItem('__rfidname__')
+        this.uploadObj.linenname = sessionStorage.getItem('__linenname__')
+        sessionStorage.setItem('__linenname__', '')
+        sessionStorage.setItem('__rfidname__', '')
       },
       _upload() {
-        let _this = this
-        apiReq.rfidUpdate(_this.uploadObj).then((res) => {
+        
+        this.uploadObj.linenid = this.kindObject[this.uploadObj.linenname]
+        apiReq.rfidUpdate(this.uploadObj).then((res) => {
           if(!res.code){
             alert('提交成功')
-            _this.$router.replace({
-              path: '/admin/bucao'
+            this.$router.replace({
+              path: '/admin/rfid'
             })
           }else{
             alert(res.msg)
           }
         })
-      },
-      selectDone(file) {
-        let _this = this
-        lrz(file,{
-          quality:0.7,
-          fieldName: 'file'
-        }).then(function (rst) {
-          _this.uploadImgs.push({
-            src: rst.base64,
-            file: rst.formData
-          })
-          _this.$refs.uploadFiles.finished()
-        }).catch(function (err) {
-          alert('浏览器不支持上传图片')
-        });
       }
     },
     watch: {
-      advertisement(to, from) {
-        console.log(to)
-      }
     },
     components: {
       uploader,
@@ -223,26 +194,16 @@ import iMlrz from 'lrz'
         width 15px
         height 15px
       .inputLike
-         height 40px
-         width 400px
-      input
+        height 40px
         width 400px
-        line-height 35px
-        text-indent 10px
-        border 1px solid #dddee1
-        background: $color-white
-        border-radius 5px
-        color: $color-text
-        font-size: $font-size-medium-x
-        &::placeholder
-          color: $color-text-d
   .buttonC
     color $color-white
     background-color $color-theme
     buttonD()
     width 200px
+    cursor pointer
     height 50px
-    left 140px
+    left 50px
     line-height 50px
-    margin 0
+    margin 30px 0
 </style>

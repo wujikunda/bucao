@@ -36,23 +36,12 @@ import TableList from 'base/table-list/table-list'
 import InputBox from 'components/admin/input-box'
 import MDialog from 'base/dialog/dialog'
 import apiReq from 'api/admin'
+import {tablistMixin} from 'common/js/mixin'
 
   export default {
-    props: {
-    },
-    computed: {
-   
-    },
+    mixins: [tablistMixin],
     data() {
       return {
-        showDialog:false,
-        tabListNumber:0,
-        tabData:[],
-        tabTitle:[],
-        tabControls:[],
-        page:1,
-        deleteID:-1,
-        controlsType:"",
       }
     },
     mounted() {
@@ -72,20 +61,14 @@ import apiReq from 'api/admin'
       this._getDataList(1)
     },
     methods: {
-      refresh() {
-        this._getDataList( this.page )
-      },
       _edit(index) {
         index ? this.$router.push(`/admin/bucao/type/edit/${index}`) : this.$router.push(`/admin/bucao/type/edit/add`)
       },
-      _serachByWord(query) {
-        if(!query) {
-          this.refresh()
-          return
+      _serachList() {
+        let obj = {}
+        if(this.serchQuery){
+          obj.searchword = this.serchQuery
         }
-        this._serachList({searchword: query})
-      },
-      _serachList(obj) {
         apiReq.linenKindQuery(obj).then((res) => {
           if(!res.code){
             this._formTabList(res.data.list)
@@ -94,9 +77,6 @@ import apiReq from 'api/admin'
             alert(res.msg)
           }
         })
-      },
-      cancel() {
-        this.showDialog = false
       },
       confirm() {
         if(this.controlsType === 'delete') {
@@ -114,10 +94,6 @@ import apiReq from 'api/admin'
       _toDetial(index) {
         this.$router.push(`/admin/bucao/type/edit/${index}`)
       },
-      toPage(index) {
-        this.page = index
-        this._getDataList( this.page )
-      },
       controls(type, item, index) {
         if(type==='delete') {
           this.deleteID = item[0].text
@@ -126,7 +102,7 @@ import apiReq from 'api/admin'
         }else if(type==='edit') {
           this.deleteID = item[0].text
           this.controlsType = type
-           sessionStorage.setItem('__kindname__', item[1].text)
+          sessionStorage.setItem('__kindname__', item[1].text)
           this._toDetial(this.deleteID)
         }
         
@@ -164,12 +140,12 @@ import apiReq from 'api/admin'
               {
                 type:'text',
                 id:'createDate',
-                text:element.createDate
+                text:element.createDate ? _this._formatD('yyyy.MM.dd hh:mm', new Date(element.createDate)) : '--'
               },
               {
                 type:'text',
                 id:'updateDate',
-                text:element.updateDate
+                text:element.updateDate ? _this._formatD('yyyy.MM.dd hh:mm', new Date(element.updateDate)) : '--'
               }
             ]
           )
