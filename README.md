@@ -1,7 +1,8 @@
-# vuedemo
+# 布草后台管理系统
 
-> A Vue.js project
-
+> 基于vue开发的布草后天管理系统
+- 技术点 vue axiow mixin
+- https://back.wjkapp.top
 ## Build Setup
 
 ``` bash

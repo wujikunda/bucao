@@ -63,7 +63,7 @@ import {tablistMixin} from 'common/js/mixin'
         color :'#5cb5f2'
       }]
       this._getDataList(1)
-      this._getTypeList()
+      // this._getTypeList()
     },
     methods: {
       _edit(index) {
@@ -145,7 +145,7 @@ import {tablistMixin} from 'common/js/mixin'
               {
                 type:'text',
                 id:'createDate',
-                text: element.createDate ? _this._formatD('yyyy.MM.dd hh:mm', new Date(element.createdate)) : '--'
+                text: element.createDate ? _this._formatD('yyyy.MM.dd hh:mm', new Date(element.createDate)) : '--'
               },
               {
                 type:'text',

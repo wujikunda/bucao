@@ -22,7 +22,7 @@
           ></AutoComplete>
       </div>
       <div class="inputBox"><div class="title">规格 <span>*</span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.specification" placeholder="请输入规格(mm)"></Input></div>
-      <div class="inputBox"><div class="title">布草单价 <span></span></div> <Input class="inputLike" size="large" type="text" v-model="uploadObj.price" placeholder="请输入种类"></Input></div>
+      <div class="inputBox"><div class="title">布草单价 <span></span></div> <Input class="inputLike" size="large" type="text" v-model="uploadObj.price" placeholder="请输入布草单价"></Input></div>
       <div class="inputBox"><div class="title">租赁单价 <span>*</span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.rentprice" placeholder="请输入租赁单价"></Input></div>
       <div class="inputBox"><div class="title">洗涤单价 <span>*</span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.washprice" placeholder="请输入洗涤单价"></Input></div>
       <div class="inputBox"><div class="title">库存 <span></span></div><Input class="inputLike" size="large" type="text" v-model="uploadObj.stock" placeholder="请输入数量"></Input></div>

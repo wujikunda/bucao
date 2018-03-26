@@ -6,22 +6,27 @@
       <span>{{pageType}}</span>
     </div>
     <div class="formBox">
-      <Form ref="formDynamic" :model="formDynamic" :label-width="80" style="width: 300px">
+      <div class="inputBox"><div class="title">RFID标识 <span>*</span></div> <Input class="inputLike" size="large"  type="text" v-model="uploadObj.name" placeholder="请输入名称"></Input></div>
+      <div class="inputBox">
+        <div class="title">
+          套件 <span>*</span>
+        </div>
+      </div>
+      <Form ref="formDynamic" :model="formDynamic" :label-width="110" style="width: 400px" >
       <FormItem
         v-for="(item, index) in formDynamic.items"
-        v-if="item.status"
         :key="index"
-        :label="'Item ' + item.index"
+        :size = "'large'"
+        :label="'套件名称'"
         :prop="'items.' + index + '.value'"
-        :rules="{required: true, message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}">
+        :rules="{required: false, message: '', trigger: 'blur'}">
         <Row>
           <Col span="18">
             <AutoComplete
             class="inputLike"
-            :size = "'large'"
             v-model="item.value"
-            :data = "kindList"
-            @on-search="_serachList"
+            :data = "item.kindList"
+            @on-search="_serachList($event, index)"
             placeholder="请输入种类名称"
             ></AutoComplete>
           </Col>
@@ -37,19 +42,13 @@
           </Col>
         </Row>
       </FormItem>
-      <FormItem>
-          <!-- <Button type="primary" @click="handleSubmit('formDynamic')">Submit</Button> -->
+      <!-- <FormItem>
+          <Button type="primary" @click="handleSubmit('formDynamic')">Submit</Button>
           <Button type="ghost" @click="handleReset('formDynamic')" style="margin-left: 8px">Reset</Button>
-      </FormItem>
+      </FormItem> -->
       </Form>
 
-      <div class="inputBox"><div class="title">名称 <span>*</span></div> <Input class="inputLike" size="large"  type="text" v-model="uploadObj.name" placeholder="请输入名称"></Input></div>
-      <div class="inputBox">
-        <div class="title">
-          种类名称 <span>*</span>
-        </div>
-        
-      </div>
+      
     </div>
     <div class="buttonC" @click="submitClick">确认提交</div>
   </section>
@@ -80,13 +79,15 @@ import {mapGetters, mapMutations} from 'vuex'
         kindObject: {},
         index: 1,
         formDynamic: {
-            items: [
-                {
-                    value: '',
-                    index: 1,
-                    status: 1
-                }
-            ]
+          items: [
+            {
+              value: '',
+              index: 1,
+              status: 1,
+              kindList:[],
+              kindObject: {},
+            }
+          ]
         }
       }
     },
@@ -96,7 +97,7 @@ import {mapGetters, mapMutations} from 'vuex'
         this._getDetial(this.$route.params.id)
       }else{
         this.pageType = '添加页面'
-        this._serachList('')
+        this._serachList('', 0)
       }
       document.title = this.pageType
     },
@@ -105,31 +106,38 @@ import {mapGetters, mapMutations} from 'vuex'
         this.$router.back()
       },
       submitClick() {
-        if(!this.uploadObj.kindname){
-          alert('输入种类名称')
+        
+        this._setlinedids()
+        if(!this.uploadObj.name || !this.uploadObj.linedids) {
+          this.$Message.error('请填写必要数据!');
           return
         }
-        this.uploadObj.kindid = this.kindObject[this.uploadObj.kindname]
-        console.log(this.kindObject[this.uploadObj.kindname],this.uploadObj.kindname,this.uploadObj.kindid)
         this.showloading =true
         this._upload()
       },
-      _serachList(val) {
+      _setlinedids() {
+        this.uploadObj.linedids = ''
+        let tempArr = []
+        this.formDynamic.items.forEach((item, index)=>{
+          tempArr.push(item.kindObject[item.value])
+        })
+        this.uploadObj.linedids = tempArr.join('|')
+      },
+      _serachList(val, index) {
         if( val === undefined){
           return
         }
-        apiReq.linenKindQuery({searchword: val}).then((res) => {
+        apiReq.linenQuery({searchword: val}).then((res) => {
           if(!res.code){
             let arr = []
             let obj = {}
             res.data.list.forEach(element => {
-              arr.push(element.kindname)
-              obj[element.kindname] = element.id
-              
+              arr.push(element.name)
+              obj[element.name] = element.linenid
             });
             if(arr.length){
-              this.$set(this, 'kindList', arr)
-              this.$set(this, 'kindObject', obj)
+              this.$set(this.formDynamic.items[index], 'kindList', arr)
+              this.$set(this.formDynamic.items[index], 'kindObject', obj)
             }
           }else{
             alert(res.msg)
@@ -137,6 +145,7 @@ import {mapGetters, mapMutations} from 'vuex'
         })
       },
       _getDetial(Packagelinensid) {
+        this.uploadObj.id = Packagelinensid
         apiReq.packagelinensDetail({Packagelinensid: Packagelinensid}).then((res) => {
           if(!res.code){
             let keys = Object.keys(res.data)
@@ -145,11 +154,10 @@ import {mapGetters, mapMutations} from 'vuex'
                 && element !== 'updateDate'
                 && element !== 'createDate'
               ){
-                this.uploadObj[element] = res.data[element]
+                this.$set(this.uploadObj, element, res.data[element])
               }
             })
             console.log(this.uploadObj)
-            this.imgFile = res.data.logo
           }else{
             alert(res.msg)
           }
@@ -161,7 +169,7 @@ import {mapGetters, mapMutations} from 'vuex'
           if(!res.code){
             alert('提交成功')
             _this.$router.replace({
-              path: '/admin/bucao'
+              path: '/admin/bucao/suite'
             })
           }else{
             alert(res.msg)
@@ -169,13 +177,13 @@ import {mapGetters, mapMutations} from 'vuex'
         })
       },
       handleSubmit (name) {
-          this.$refs[name].validate((valid) => {
-              if (valid) {
-                  this.$Message.success('Success!');
-              } else {
-                  this.$Message.error('Fail!');
-              }
-          })
+        this.$refs[name].validate((valid) => {
+          if (valid) {
+              this.$Message.success('Success!');
+          } else {
+              this.$Message.error('Fail!');
+          }
+        })
       },
       handleReset (name) {
           this.$refs[name].resetFields();
@@ -187,9 +195,13 @@ import {mapGetters, mapMutations} from 'vuex'
               index: this.index,
               status: 1
           });
+          
+          this.$nextTick(()=>{
+            this._serachList('', this.index-1)
+          })
       },
       handleRemove (index) {
-          this.formDynamic.items[index].status = 0;
+          this.formDynamic.items.splice(index, 1)
       }
     },
     watch: {
@@ -222,7 +234,7 @@ import {mapGetters, mapMutations} from 'vuex'
       line-height 35px
       width 100%
       .title
-        width 100px
+        width 110px
       .picList
         padding 10px 0
         .listBox

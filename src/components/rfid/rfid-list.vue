@@ -46,7 +46,7 @@ import {tablistMixin} from 'common/js/mixin'
       }
     },
     mounted() {
-      this.tabTitle = ['ID', 'RFID标识', '布草名称', '创建时间', '更新时间']
+      this.tabTitle = ['ID', {text:'RFID标识', large:true }, '布草名称', '创建时间', '更新时间']
       this.tabControls = [{
         text:'删除',
         icon: require('common/image/btn_trash.png'),
@@ -133,7 +133,8 @@ import {tablistMixin} from 'common/js/mixin'
               {
                 type:'text',
                 id:'rfidname',
-                text:element.rfidname
+                text:element.rfidname,
+                large: true
               },
               {
                 type:'text',
@@ -143,7 +144,7 @@ import {tablistMixin} from 'common/js/mixin'
               {
                 type:'text',
                 id:'createDate',
-                text: element.createDate ? _this._formatD('yyyy.MM.dd hh:mm', new Date(element.createdate)) : '--'
+                text: element.createDate ? _this._formatD('yyyy.MM.dd hh:mm', new Date(element.createDate)) : '--'
               },
               {
                 type:'text',

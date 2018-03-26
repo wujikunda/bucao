@@ -2,11 +2,11 @@
   <div class="list-box">
     <ul class="tab-list">
       <li class="tab-title" >
-        <div  :class="{'mincel': index===0 }" :key="index" v-for="(item, index) in tabTitle" class="cel">{{item}}</div>
+        <div  :class="{'mincel': index===0 , 'maxcel': item.large }" :key="index" v-for="(item, index) in tabTitle" class="cel">{{item.text || item}}</div>
          <div class="cel controlsBox" v-if="showTabControls" :style="`flex: 0 0 ${100*tabControls.length}px`"><div class="cel">操作</div></div>
       </li>
       <li :key="i" class="tab-item" @click="selectItem(item)" v-for="(item, i) in tabData">
-        <div class="cel" :class="{'mincel': index===0 }" :key="index" v-for="(ele, index) in item">
+        <div class="cel" :class="{'mincel': index===0 , 'maxcel': ele.large }" :key="index" v-for="(ele, index) in item">
           <span v-if="ele.type === 'text'"  :style="ele.color ? 'color:'+ele.color : '' ">{{ele.text || '--'}}</span>
           <span v-else><img class="cel-icon" :src="ele.text" ></span>
         </div>
@@ -110,11 +110,12 @@
         font-weight bold
     .tab-item,.tab-title
       display: flex
+      padding 5px
       border-bottom 1px solid $color-border
       box-sizing border-box
       align-items: center
       height: 50px
-      text-align center
+      text-align left
       overflow: hidden
       color: $color-text
       .cel
@@ -133,6 +134,8 @@
           margin-bottom -2px
       .mincel
         flex 0 0 50px
+      .maxcel
+        flex 0 0 400px
       .controlsBox
         align-items: center
         height 100%
@@ -143,7 +146,6 @@
           flex 0 0 100px
           height 100%
           align-items center
-          justify-content center
           img
             width 18px
             margin-right 10px
